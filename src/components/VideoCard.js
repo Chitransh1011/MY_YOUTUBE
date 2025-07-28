@@ -1,7 +1,6 @@
 import React from 'react'
 
 const VideoCard = ({info}) => {
-    console.log(info)
     
   return (
     <div className='p-2 m-5 w-56 shadow-lg'>
