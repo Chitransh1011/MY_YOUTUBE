@@ -2,12 +2,29 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { sideBarToggle } from "../utils/appSlice";
 import { cacheResults } from "../utils/searchSlice";
+import { addItem } from "../utils/searchPageSlice";
+import { useNavigate } from "react-router-dom";
 const Header = () => {
+
+  const navigate = useNavigate();
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchCache = useSelector((store) => store.search);
   const dispatch = useDispatch();
+
+  const getSearchPage = async () => {
+    const res = await fetch(process.env.REACT_APP_SEARCH_API + searchQuery);
+    const data = await res.json();
+    console.log(data)
+    dispatch(addItem(data.items))
+  }
+  const handleSearchBtn = ()=>{
+    getSearchPage();
+    navigate("searchpage");
+  }
+
   const handleToggle = () => {
     dispatch(sideBarToggle());
   };
@@ -17,9 +34,11 @@ const Header = () => {
     );
     const data = await res.json();
     setSuggestions(data[1]);
-    dispatch(cacheResults({
-        [searchQuery]:data[1]
-    }))
+    dispatch(
+      cacheResults({
+        [searchQuery]: data[1],
+      })
+    );
   };
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -59,7 +78,10 @@ const Header = () => {
             onFocus={() => setShowSuggestions(true)}
             onBlur={() => setShowSuggestions(false)}
           ></input>
-          <button className="border border-gray-600 p-2 rounded-r-full">
+          <button
+            onClick={handleSearchBtn}
+            className="border border-gray-600 p-2 rounded-r-full"
+          >
             Search
           </button>
         </div>
